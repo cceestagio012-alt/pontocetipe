@@ -423,10 +423,213 @@
       color: rgba(142,170,200,0.45);
       text-align: center;
     }
+
+    /* ── Tela de login ───────────────────────────────────── */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-bot) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 32px 24px;
+      gap: 0;
+      transition: opacity .4s ease;
+    }
+
+    .login-screen.oculto {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .login-logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      margin-bottom: 16px;
+    }
+
+    .login-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+    .login-titulo {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+      text-align: center;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .login-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 36px;
+      text-align: center;
+    }
+
+    .login-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 320px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    .login-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 10px;
+      text-align: center;
+      display: block;
+    }
+
+    .pin-dots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .pin-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.2);
+      transition: all .2s;
+    }
+
+    .pin-dot.preenchido {
+      background: var(--blue);
+      border-color: var(--blue);
+      box-shadow: 0 0 8px rgba(59,130,246,0.5);
+    }
+
+    .pin-input-hidden {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 1px;
+      height: 1px;
+    }
+
+    .teclado {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .tecla {
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      padding: 16px 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .tecla:active, .tecla.pressionada {
+      background: rgba(59,130,246,0.25);
+      border-color: rgba(59,130,246,0.4);
+      transform: scale(0.94);
+    }
+
+    .tecla.apagar {
+      font-size: 16px;
+      color: var(--muted);
+    }
+
+    .tecla.vazia {
+      background: transparent;
+      border-color: transparent;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .login-erro {
+      font-size: 12px;
+      color: #FCA5A5;
+      text-align: center;
+      margin-top: 14px;
+      min-height: 18px;
+      font-weight: 500;
+      transition: opacity .2s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-8px); }
+      40%       { transform: translateX(8px); }
+      60%       { transform: translateX(-6px); }
+      80%       { transform: translateX(6px); }
+    }
+
+    .shake { animation: shake .4s ease; }
   </style>
 </head>
 
 <body>
+
+  <!-- ── Tela de login com PIN ────────────────────────────── -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-logo">
+      <img src="assets/logo.png" alt="Logo" onerror="this.parentElement.innerHTML='🏫'" />
+    </div>
+    <div class="login-titulo">Colégio Estadual do Tempo Integral</div>
+    <div class="login-sub">Padre Francisco Gonçalves de Souza</div>
+
+    <div class="login-card">
+      <span class="login-label">Digite o PIN de acesso</span>
+
+      <div class="pin-dots" id="pinDots">
+        <div class="pin-dot" id="dot0"></div>
+        <div class="pin-dot" id="dot1"></div>
+        <div class="pin-dot" id="dot2"></div>
+        <div class="pin-dot" id="dot3"></div>
+      </div>
+
+      <div class="teclado">
+        <button class="tecla" onclick="teclaPin('1')">1</button>
+        <button class="tecla" onclick="teclaPin('2')">2</button>
+        <button class="tecla" onclick="teclaPin('3')">3</button>
+        <button class="tecla" onclick="teclaPin('4')">4</button>
+        <button class="tecla" onclick="teclaPin('5')">5</button>
+        <button class="tecla" onclick="teclaPin('6')">6</button>
+        <button class="tecla" onclick="teclaPin('7')">7</button>
+        <button class="tecla" onclick="teclaPin('8')">8</button>
+        <button class="tecla" onclick="teclaPin('9')">9</button>
+        <button class="tecla vazia"></button>
+        <button class="tecla" onclick="teclaPin('0')">0</button>
+        <button class="tecla apagar" onclick="apagarPin()">⌫</button>
+      </div>
+
+      <div class="login-erro" id="loginErro"></div>
+    </div>
+  </div>
 
   <!-- ── Header ───────────────────────────────────────── -->
   <div class="header">
@@ -539,9 +742,63 @@
 
 
   <script>
-    // ── Cole aqui a URL do Apps Script após publicar ──────────
     var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2LC1vTlhaMBNJPg26Yg9aIyRHz_o20SlKV1LmfWXRfRZBCSFRwrxe35Q5Jycg1h0Q/exec";
-    var SENHA = "1567"; // mesma senha do backend.gs
+    var SENHA = "1567";
+
+    // ── PIN de acesso ao site (pode ser diferente da SENHA do backend) ─────────
+    var PIN_ACESSO = "1567";
+    var _pinDigitado = "";
+
+    function teclaPin(digito) {
+      if (_pinDigitado.length >= 4) return;
+      _pinDigitado += digito;
+      _atualizarDots();
+      if (_pinDigitado.length === 4) {
+        setTimeout(_verificarPin, 150);
+      }
+    }
+
+    function apagarPin() {
+      if (_pinDigitado.length === 0) return;
+      _pinDigitado = _pinDigitado.slice(0, -1);
+      _atualizarDots();
+      document.getElementById("loginErro").textContent = "";
+    }
+
+    function _atualizarDots() {
+      for (var i = 0; i < 4; i++) {
+        var dot = document.getElementById("dot" + i);
+        if (i < _pinDigitado.length) {
+          dot.classList.add("preenchido");
+        } else {
+          dot.classList.remove("preenchido");
+        }
+      }
+    }
+
+    function _verificarPin() {
+      if (_pinDigitado === PIN_ACESSO) {
+        var tela = document.getElementById("loginScreen");
+        tela.classList.add("oculto");
+        setTimeout(function() { tela.style.display = "none"; }, 400);
+        carregarFuncionarios();
+      } else {
+        document.getElementById("loginErro").textContent = "PIN incorreto. Tente novamente.";
+        var dots = document.getElementById("pinDots");
+        dots.classList.add("shake");
+        setTimeout(function() { dots.classList.remove("shake"); }, 400);
+        _pinDigitado = "";
+        _atualizarDots();
+      }
+    }
+
+    // Suporte a teclado físico na tela de login
+    document.addEventListener("keydown", function(e) {
+      var tela = document.getElementById("loginScreen");
+      if (tela.style.display === "none") return;
+      if (e.key >= "0" && e.key <= "9") { teclaPin(e.key); }
+      if (e.key === "Backspace") { apagarPin(); }
+    });
     // ─────────────────────────────────────────────────────────
 
     var tipoAtual      = "entrada";
@@ -552,7 +809,7 @@
       atualizarDataBadge();
       preencherAgora();
       setInterval(atualizarDataBadge, 60000);
-      carregarFuncionarios();
+      // carregarFuncionarios() é chamado após o login ser validado
     })();
 
     function atualizarDataBadge() {
