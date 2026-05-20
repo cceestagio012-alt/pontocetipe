@@ -540,7 +540,7 @@
 
   <script>
     // ── Cole aqui a URL do Apps Script após publicar ──────────
-    var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLSQyLT4yBjNDne9iqll4-rAJe47ungYrufZyJscGjtBYrtZKEpiKB7W_1-_NtKra1/exec";
+    var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7VFe8wBBF_bTHQjJ0aXnJ0UxlvXKnlBcNy7TalVfzNaLbihyYO7d-gUsXEYq0FSYx/exec";
     var SENHA = "1567"; // mesma senha do backend.gs
     // ─────────────────────────────────────────────────────────
 
@@ -564,37 +564,73 @@
         meses[agora.getMonth()] + " " + agora.getFullYear();
     }
 
-    // ── Carrega funcionários via iframe + postMessage (PC e mobile) ──
+    // ── Carrega funcionários: JSONP (PC) → iframe/postMessage (mobile) ──
     function carregarFuncionarios() {
       if (!APPS_SCRIPT_URL) { ativarFallback(); return; }
       document.getElementById("setor").innerHTML = '<option value="">Carregando...</option>';
+      _tentarJSONP();
+    }
 
-      var iframe = document.createElement("iframe");
-      iframe.style.cssText = "display:none;width:0;height:0;border:none;";
+    function _tentarJSONP() {
+      var cb    = "_cbF" + Date.now();
+      var el    = document.createElement("script");
+      var feito = false;
 
       var timer = setTimeout(function() {
-        cleanup(); ativarFallback();
+        if (feito) return; feito = true;
+        window[cb] = null;
+        if (el.parentNode) el.parentNode.removeChild(el);
+        _tentarIframe();
+      }, 8000);
+
+      window[cb] = function(data) {
+        if (feito) return; feito = true;
+        clearTimeout(timer); window[cb] = null;
+        if (el.parentNode) el.parentNode.removeChild(el);
+        if (data && data.funcionarios) { _preencherSetores(data.funcionarios); }
+        else { _tentarIframe(); }
+      };
+
+      el.onerror = function() {
+        if (feito) return; feito = true;
+        clearTimeout(timer); window[cb] = null;
+        _tentarIframe();
+      };
+
+      el.src = APPS_SCRIPT_URL +
+        "?senha=" + encodeURIComponent(SENHA) +
+        "&callback=" + cb;
+      document.head.appendChild(el);
+    }
+
+    function _tentarIframe() {
+      var fr = document.createElement("iframe");
+      fr.style.cssText = "position:absolute;left:-9999px;top:-9999px;" +
+                         "width:1px;height:1px;border:none;";
+
+      var timer = setTimeout(function() {
+        _limparIframe(fr); ativarFallback();
       }, 10000);
 
-      function cleanup() {
+      function _limparIframe(f) {
         clearTimeout(timer);
         window.removeEventListener("message", handler);
-        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        if (f.parentNode) f.parentNode.removeChild(f);
       }
 
       function handler(evt) {
         var d = evt.data;
         if (!d || (!d.funcionarios && !d.erro)) return;
-        cleanup();
+        _limparIframe(fr);
         if (d.funcionarios) { _preencherSetores(d.funcionarios); }
         else { ativarFallback(); }
       }
 
       window.addEventListener("message", handler);
-      iframe.src = APPS_SCRIPT_URL +
+      fr.src = APPS_SCRIPT_URL +
         "?senha=" + encodeURIComponent(SENHA) +
         "&modo=iframe";
-      document.body.appendChild(iframe);
+      document.body.appendChild(fr);
     }
 
     function _preencherSetores(mapa) {
