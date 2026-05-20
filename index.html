@@ -564,56 +564,23 @@
         meses[agora.getMonth()] + " " + agora.getFullYear();
     }
 
-    // ── Carrega funcionários: fetch direto → JSONP como fallback ────
+    // ── Carrega funcionários do arquivo estático (sem CORS) ──────────
     function carregarFuncionarios() {
-      if (!APPS_SCRIPT_URL) { _erroLista(); return; }
       document.getElementById("setor").innerHTML = '<option value="">Carregando...</option>';
-
-      fetch(APPS_SCRIPT_URL + "?senha=" + encodeURIComponent(SENHA))
+      fetch("funcionarios.json")
         .then(function(r) { return r.json(); })
         .then(function(data) {
-          if (data && data.funcionarios) { _preencherSetores(data.funcionarios); }
-          else { _tentarJSONP(); }
+          if (data && data.funcionarios && Object.keys(data.funcionarios).length > 0) {
+            _preencherSetores(data.funcionarios);
+          } else {
+            document.getElementById("setor").innerHTML = '<option value="">Lista não disponível</option>';
+            mostrarErro("Lista de funcionários vazia. Contate o administrador.");
+          }
         })
-        .catch(function() { _tentarJSONP(); });
-    }
-
-    function _tentarJSONP() {
-      var cb    = "_cbF" + Date.now();
-      var el    = document.createElement("script");
-      var feito = false;
-
-      var timer = setTimeout(function() {
-        if (feito) return; feito = true;
-        window[cb] = null;
-        if (el.parentNode) el.parentNode.removeChild(el);
-        _erroLista();
-      }, 10000);
-
-      window[cb] = function(data) {
-        if (feito) return; feito = true;
-        clearTimeout(timer); window[cb] = null;
-        if (el.parentNode) el.parentNode.removeChild(el);
-        if (data && data.funcionarios) { _preencherSetores(data.funcionarios); }
-        else { _erroLista(); }
-      };
-
-      el.onerror = function() {
-        if (feito) return; feito = true;
-        clearTimeout(timer); window[cb] = null;
-        _erroLista();
-      };
-
-      el.src = APPS_SCRIPT_URL +
-        "?senha=" + encodeURIComponent(SENHA) +
-        "&callback=" + cb;
-      document.head.appendChild(el);
-    }
-
-    function _erroLista() {
-      document.getElementById("setor").innerHTML =
-        '<option value="">Erro — recarregue a página</option>';
-      mostrarErro("Não foi possível carregar a lista. Verifique a conexão e recarregue.");
+        .catch(function() {
+          document.getElementById("setor").innerHTML = '<option value="">Erro — recarregue a página</option>';
+          mostrarErro("Não foi possível carregar a lista. Verifique a conexão e recarregue.");
+        });
     }
 
     function _preencherSetores(mapa) {

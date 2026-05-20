@@ -1,0 +1,40 @@
+{
+  "funcionarios": {
+    "Atendentes de AEE": [
+      "ARILUCE MATOS DA SILVA",
+      "MARIA FIRMARIA OLIVEIRA ANDRADE",
+      "VITORIA EMANUELE"
+    ],
+    "Cozinha": [
+      "CACILDA LUCINDA BARRETO SILVA",
+      "CHAIANE DE OLIVEIRA CAVALCANTE",
+      "MARIA CLAUDIANA",
+      "MARIA DOS REIS BARBOSA",
+      "MAYANE PAIXÃO"
+    ],
+    "Limpeza": [
+      "BELIZETE",
+      "MARTINIANA ANDRADE",
+      "RENILSA QUIROZ SANTANA",
+      "SELMA ANDRADE"
+    ],
+    "Oficineiros": [
+      "SOSTENES COSTA"
+    ],
+    "Portaria": [
+      "JUSCELINO LISBOA",
+      "RAMON MATOS DO CARMO",
+      "SERGIO CARMO DE SOUZA"
+    ],
+    "Professor(a)": [
+      "ANGELA PEREIRA DE SOUZA"
+    ],
+    "Secretaria": [
+      "ANA CARLA SILVA DO CARMO",
+      "CLEIA SANTANA ALMEIDA",
+      "IVONE ARAUJO DE OLIVEIRA",
+      "KELLI SANTANA DE ALMEIDA",
+      "RYAN CLEI PORTUGAL"
+    ]
+  }
+}
