@@ -564,39 +564,37 @@
         meses[agora.getMonth()] + " " + agora.getFullYear();
     }
 
-    // ── Carrega funcionários via JSONP do Apps Script ────────────────
+    // ── Carrega funcionários via iframe + postMessage (PC e mobile) ──
     function carregarFuncionarios() {
       if (!APPS_SCRIPT_URL) { ativarFallback(); return; }
       document.getElementById("setor").innerHTML = '<option value="">Carregando...</option>';
 
-      var cb     = "_cbF" + Date.now();
-      var script = document.createElement("script");
-      var timer  = setTimeout(function() {
-        window[cb] = null;
-        if (script.parentNode) script.parentNode.removeChild(script);
-        ativarFallback();
-      }, 8000);
+      var iframe = document.createElement("iframe");
+      iframe.style.cssText = "display:none;width:0;height:0;border:none;";
 
-      window[cb] = function(data) {
+      var timer = setTimeout(function() {
+        cleanup(); ativarFallback();
+      }, 10000);
+
+      function cleanup() {
         clearTimeout(timer);
-        window[cb] = null;
-        if (script.parentNode) script.parentNode.removeChild(script);
-        if (data && data.funcionarios) {
-          _preencherSetores(data.funcionarios);
-        } else {
-          ativarFallback();
-        }
-      };
+        window.removeEventListener("message", handler);
+        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      }
 
-      script.src = APPS_SCRIPT_URL +
+      function handler(evt) {
+        var d = evt.data;
+        if (!d || (!d.funcionarios && !d.erro)) return;
+        cleanup();
+        if (d.funcionarios) { _preencherSetores(d.funcionarios); }
+        else { ativarFallback(); }
+      }
+
+      window.addEventListener("message", handler);
+      iframe.src = APPS_SCRIPT_URL +
         "?senha=" + encodeURIComponent(SENHA) +
-        "&callback=" + cb;
-      script.onerror = function() {
-        clearTimeout(timer);
-        window[cb] = null;
-        ativarFallback();
-      };
-      document.head.appendChild(script);
+        "&modo=iframe";
+      document.body.appendChild(iframe);
     }
 
     function _preencherSetores(mapa) {
